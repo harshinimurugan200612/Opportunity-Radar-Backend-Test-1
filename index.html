@@ -1,0 +1,235 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Opportunity Radar</title>
+  <link rel="stylesheet" href="style.css">
+
+  <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore-compat.js"></script>
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <div id="loginScreen" class="login-screen">
+    <div class="login-card">
+      <div class="logo-icon">✦</div>
+      <h1>Opportunity Radar</h1>
+      <p>Discover opportunities. Never miss a deadline.</p>
+
+      <form id="loginForm">
+        <label for="loginName">Your name</label>
+        <input id="loginName" required placeholder="Enter your name">
+
+        <label for="loginEmail">Email address</label>
+        <input id="loginEmail" type="email" required placeholder="you@example.com">
+
+        <label for="loginPassword">Password</label>
+        <input id="loginPassword" type="password" required minlength="6" placeholder="Enter password">
+
+        <button class="primary-btn full-btn" type="submit">Sign in →</button>
+        <button id="createAccountBtn" class="primary-btn full-btn" type="button">Create account</button>
+      </form>
+
+      <p id="loginMessage" class="small-note">Sign in or create your student account.</p>
+    </div>
+  </div>
+
+  <div id="app" class="app hidden">
+    <aside class="sidebar">
+      <a class="brand" href="#overview"><span class="brand-icon">✦</span> opportunity<span>radar</span></a>
+      <p class="sidebar-label">WORKSPACE</p>
+
+      <nav>
+        <a href="#overview">▦ Overview</a>
+        <a href="#radar">◎ Opportunity Radar</a>
+        <a href="#rescue">↗ Opportunity Rescue</a>
+        <a href="#profile">♟ Student Profile</a>
+        <a href="#tracker">▣ Opportunity Tracker</a>
+        <a href="#chatbot">✧ AI Assistant</a>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <div class="avatar" id="sidebarAvatar">S</div>
+        <div>
+          <strong id="sidebarName">Student</strong>
+          <small>Student workspace</small>
+        </div>
+        <button id="signOutBtn" class="signout-btn" type="button">Sign out</button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div><span class="muted">Workspace / </span><strong id="pageTitle">Overview</strong></div>
+        <span class="status-pill">● Connected workspace</span>
+      </header>
+
+      <section id="overview" class="hero section">
+        <div class="hero-copy">
+          <span class="eyebrow">✦ YOUR PERSONAL OPPORTUNITY HUB</span>
+          <h1>Find your next<br><span>big opportunity.</span></h1>
+          <p>A smarter way to discover, prioritize, and act on opportunities that move you forward.</p>
+          <a class="primary-btn inline-btn" href="#radar">✦ Find opportunities ↗</a>
+        </div>
+
+        <div class="radar-visual" aria-label="Animated radar illustration">
+          <div class="radar-ring ring-one"></div>
+          <div class="radar-ring ring-two"></div>
+          <div class="radar-ring ring-three"></div>
+          <div class="radar-sweep"></div>
+          <span class="radar-dot dot-one"></span>
+          <span class="radar-dot dot-two"></span>
+          <span class="radar-dot dot-three"></span>
+          <span class="radar-center">✦</span>
+        </div>
+      </section>
+
+      <section class="stats-grid section">
+        <article class="stat-card">
+          <span>Available opportunities</span>
+          <strong id="availableCount">0</strong>
+          <small>Explore new possibilities</small>
+        </article>
+        <article class="stat-card">
+          <span>Saved opportunities</span>
+          <strong id="savedCount">0</strong>
+          <small>Keep track of your choices</small>
+        </article>
+        <article class="stat-card">
+          <span>Applications</span>
+          <strong id="appliedCount">0</strong>
+          <small>Opportunities you've applied to</small>
+        </article>
+      </section>
+
+      <section id="radar" class="section panel">
+        <div class="section-heading">
+          <div>
+            <span class="eyebrow">DISCOVER</span>
+            <h2>Opportunity Radar</h2>
+            <p>Find opportunities that match your interests.</p>
+          </div>
+        </div>
+
+        <div class="filter-row">
+          <input id="skillsInput" placeholder="Enter skills (HTML, Python, UI/UX)">
+          <select id="categoryFilter">
+            <option value="All">All Opportunities</option>
+            <option value="Internship">Internships</option>
+            <option value="Hackathon">Hackathons</option>
+            <option value="Scholarship">Scholarships</option>
+          </select>
+          <button id="findBtn" class="primary-btn" type="button">Find Opportunities</button>
+        </div>
+
+        <div id="opportunityList" class="opportunity-grid"></div>
+      </section>
+
+      <section id="rescue" class="section panel">
+        <div class="section-heading">
+          <div>
+            <span class="eyebrow">NEVER GIVE UP</span>
+            <h2>Opportunity Rescue</h2>
+            <p>Missed a deadline? Find your next possible step.</p>
+          </div>
+        </div>
+
+        <form id="rescueForm" class="rescue-form">
+          <input id="missedOpportunity" required placeholder="Enter the missed opportunity name">
+          <button class="primary-btn" type="submit">Find alternatives</button>
+        </form>
+
+        <div id="rescueResults" class="rescue-results">
+          <p class="empty-state">Enter an opportunity name to explore alternatives.</p>
+        </div>
+      </section>
+
+      <section id="profile" class="section panel">
+        <div class="section-heading">
+          <div>
+            <span class="eyebrow">YOUR JOURNEY</span>
+            <h2>Student Profile Enhancement</h2>
+            <p>Build a profile that showcases your strengths.</p>
+          </div>
+        </div>
+
+        <form id="profileForm" class="form-grid">
+          <div class="field">
+            <label for="profileName">Full name</label>
+            <input id="profileName" name="name" placeholder="Your name">
+          </div>
+          <div class="field">
+            <label for="college">College</label>
+            <input id="college" name="college" placeholder="College name">
+          </div>
+          <div class="field">
+            <label for="school">School</label>
+            <input id="school" name="school" placeholder="School name">
+          </div>
+          <div class="field">
+            <label for="resume">Resume link</label>
+            <input id="resume" name="resume" type="url" placeholder="https://...">
+          </div>
+          <div class="field full-field">
+            <label for="profileSkills">Skills</label>
+            <textarea id="profileSkills" name="skills" placeholder="HTML, CSS, JavaScript, UI/UX"></textarea>
+          </div>
+          <div class="field full-field">
+            <label for="achievements">Achievements</label>
+            <textarea id="achievements" name="achievements" placeholder="Hackathons, certificates, awards"></textarea>
+          </div>
+          <div class="field full-field">
+            <label for="projects">Projects</label>
+            <textarea id="projects" name="projects" placeholder="Project names and short descriptions"></textarea>
+          </div>
+          <div class="field full-field">
+            <label for="careerGoals">Career goals</label>
+            <textarea id="careerGoals" name="careerGoals" placeholder="What do you want to achieve?"></textarea>
+          </div>
+          <div class="full-field">
+            <button class="primary-btn" type="submit">Save student profile</button>
+            <span id="profileMessage" class="form-message"></span>
+          </div>
+        </form>
+      </section>
+
+      <section id="tracker" class="section panel">
+        <div class="section-heading">
+          <div>
+            <span class="eyebrow">STAY ORGANIZED</span>
+            <h2>Opportunity Tracker</h2>
+            <p>Manage saved opportunities, application status, and deadlines.</p>
+          </div>
+        </div>
+        <div id="trackerList" class="tracker-list"></div>
+      </section>
+
+      <section id="chatbot" class="section panel">
+        <div class="section-heading">
+          <div>
+            <span class="eyebrow">YOUR STUDY PARTNER</span>
+            <h2>AI Opportunity Assistant</h2>
+            <p>Ask for guidance on resumes, projects, applications, and deadlines.</p>
+          </div>
+        </div>
+
+        <div class="chat-window">
+          <div id="chatMessages" class="chat-messages">
+            <div class="chat-message bot-message">Hi! I'm your Opportunity Assistant. Ask me about resumes, skills, projects, internships, or missed deadlines.</div>
+          </div>
+          <form id="chatForm" class="chat-form">
+            <input id="chatInput" required placeholder="Ask your question...">
+            <button class="primary-btn" type="submit">Send</button>
+          </form>
+          <p class="small-note">Prototype assistant with predefined responses; live AI is not connected.</p>
+        </div>
+      </section>
+
+      <footer>Opportunity Radar <span>· Student workspace prototype</span></footer>
+    </main>
+  </div>
+</body>
+</html>
